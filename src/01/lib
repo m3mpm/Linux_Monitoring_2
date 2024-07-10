@@ -1,0 +1,42 @@
+# функция проверки, если в конце пути поставили / или нет
+# если в конец пути стоит /, то убираем, если нет, то просто возвращаем путь
+function check_path_f {
+    check_path=$1
+    last_letter=${check_path:${#check_path}-1:1}
+    letter="/"
+    if [[ "$last_letter" = "$letter" ]]
+    then
+        check_path=${check_path:0:${#check_path}-1}
+    fi
+    echo $check_path
+}
+
+# функция увеличения длины имени до 4 символов
+# если длина имени меньше 4 символов, то увеличиваем имя до 4 символов
+# если >= 4 символам, то ничего не делаем
+function name_length_f {
+    name=$1
+    while [[ ${#name} -lt 4 ]]
+    do
+        name+=${1:${#1}-1:1}
+    done
+    echo $name
+}
+
+# функция проверки свободного пространства в разделе /
+function check_free_space_f {
+    disk_space=$(df -h -m / | awk 'NR==2 {print $4}')
+    if [[ disk_space -le 1024 ]]
+    then
+        echo "check_fee_space: Free space left less 1Gb"
+        exit 1
+    fi
+}
+
+# функция информация о системе
+function system_info_f {
+    echo "*************************"
+    echo "System info:"
+    df -h /
+    echo "*************************"
+}
