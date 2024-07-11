@@ -1,0 +1,42 @@
+
+# функция информация о системе
+function system_info_f {
+    echo "*************************"
+    echo "System info:"
+    df -h /
+    echo "*************************"
+}
+
+# функция увеличения длины имени до 5 символов
+# если длина имени меньше 5 символов, то увеличиваем имя до 5 символов
+# если >= 5 символам, то ничего не делаем
+function name_length_f {
+    name=$1
+    while [[ ${#name} -lt 5 ]]
+    do
+        name+=${1:${#1}-1:1}
+    done
+    echo $name
+}
+
+# функция проверки свободного пространства в разделе /
+function check_free_space_f {
+    disk_space=$(df -h -m / | awk 'NR==2 {print $4}')
+    if [[ disk_space -le 1024 ]]
+    then
+        echo "check_fee_space: INFO: Free space left less 1Gb"
+        echo "check_fee_space: INFO: Stop run.sh sript"
+        return 1
+    fi
+}
+
+# функция поиска рандомной папки где можно создавать папки и файлы
+function get_random_path_f {
+    # количество возможных папок в которые пользователь может минимум записывать, читать; другие пользователи могут минимум читать
+    number_of_folders=$(sudo find / -type d -perm -644 | grep -v bin | grep -v sbin | grep -v dev | grep -v proc | grep -v run | grep -v snap | grep -v sys | wc -l)
+    # полученике рандомного номера из number_of_folders
+    random_number=$((1 + $RANDOM % $number_of_folders))
+    # выбор папки с номером random_number
+    random_path=$(sudo find / -type d -perm -644 | grep -v bin | grep -v sbin | grep -v dev | grep -v proc | grep -v run | grep -v snap | grep -v sys | head -$random_number | tail +$random_number)
+    echo $random_path
+}
