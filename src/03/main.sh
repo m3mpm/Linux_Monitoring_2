@@ -6,6 +6,11 @@ source ./lib
 echo "main.sh: Start main.sh script"
 if [[ $# -eq 1 ]]
 then
+
+    # переменные для таймера старт
+    start=$(date +%s)
+    start_time=$(date +%T)
+
     case $1 in
     1)
         # информация о системе до удаления
@@ -53,6 +58,21 @@ then
         echo "main.sh: Error2: Need to enter one parameter. Please, use numbers from 1 to 3"
     ;;
     esac
+
+    # переменные для таймера стоп
+    stop=$(date +%s)
+    stop_time=$(date +%T)
+
+    # расчет времени работы таймера
+    time_works=$(( $stop - $start ))
+
+    # вывод информации работы таймера
+    echo "*************************"
+    echo "start time script: $start_time"
+    echo "stop time script: $stop_time"
+    echo "time works script: $time_works sec"
+    echo "*************************"
+
 else
     echo "main.sh: Error1: Need to enter one parameter. Please, use numbers from 1 to 3"
     echo "main.sh: Example: ./main.sh 1 - by log file"

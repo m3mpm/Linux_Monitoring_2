@@ -19,14 +19,14 @@ then
         system_info_f
 
         # переменные для таймера старт
-        start=$(date +%S)
+        start=$(date +%s)
         start_time=$(date +%T)
 
         # скрипт создания папок и файлов
         ./run.sh $1 $2 $3
 
         # переменные для таймера стоп
-        stop=$(date +%S)
+        stop=$(date +%s)
         stop_time=$(date +%T)
 
         # расчет времени работы таймера
