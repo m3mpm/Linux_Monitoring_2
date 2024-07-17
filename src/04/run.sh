@@ -11,7 +11,7 @@ agents_arr=("Mozilla" "Google Chrome" "Opera" "Safari" "Internet Explorer" "Micr
 # объявление массивов данных для генерации url
 ulr_domuplevel_arr=(com de cn net org info ru su edu gov biz dev sa nz) #14
 url_domen_arr=(yandex vk mail ok habr google yahoo facebook twitter mi samsung apple porn chatgpt telegram youtube amazon wikipedia 2gis) #19
-url_page_arr=(goodzoom suncast signtime betastar zooline primepoint treephase java php goland js goldway aurabar aurabar wondermobile lemonbite gorillawater joypoly) #18
+url_page_arr=(goodzoom suncast signtime betastar zooline primepoint treephase java php goland js goldway aurabar aurabar wondermobile lemonbite gorillawater joypoly heartman worldbar labdrill alligatorpaw yellowwheels joysearch nemoforce accentworld ranrunzap fintaxon vivalax sunhouse icestones) #31
 ulr_protocol_arr=(http https) #2
 
 # функция получения даты для первого лог файла
@@ -43,36 +43,15 @@ function get_ip_f {
     echo $ip
 }
 
-# функция рандомного выбора метода запроса для записи в лог файле
-function get_method_f {
-    arr_size=$((${#methods_arr[@]} - 1))
-    indx_method=$(shuf -i 0-$arr_size -n 1)
-    random_method=${methods_arr[indx_method]}
-    echo $random_method
-}
-
-# функция рандомного выбора домена верхнего уровня url для записи в лог файле
-function get_updomen_f {
-    arr_size=$((${#ulr_domuplevel_arr[@]} - 1))
-    indx_updome=$(shuf -i 0-$arr_size -n 1)
-    rand_updome=${ulr_domuplevel_arr[indx_updome]}
-    echo $rand_updome
-}
-
-# функция рандомного выбора страницы url для записи в лог файле
-function get_page_f {
-    arr_size=$((${#url_page_arr[@]} - 1))
-    indx_page=$(shuf -i 0-$arr_size -n 1)
-    rand_page=${url_page_arr[indx_page]}
-    echo $rand_page
-}
-
-# функция рандомного выбора кода ответа для записи в лог файле
-function get_code_f {
-    arr_size=$((${#codes_arr[@]} - 1))
-    indx_code=$(shuf -i 0-$arr_size -n 1)
-    rand_code=${codes_arr[indx_code]}
-    echo $rand_code
+# функция рандомного выбора элемента массива для записи в лог файле
+# на вход функции передается массив данных
+# функция возвращает один элемент массива
+function get_data_from_arr_f {
+    local local_arr=("$@") # создаем локальную копию массива
+    local arr_size=$((${#local_arr[@]} - 1)) # вычитаем из размера массива единицу для получения последнего индекса массива
+    local indx=$(shuf -i 0-$arr_size -n 1) # рандомно выбираем индекс массива
+    local data=${local_arr[indx]} # получаем рандомный элемент массива
+    echo $data # возврат элемента массива из функции
 }
 
 # функция генерации размера объекта, возвращаемого клиенту, не включая заголовки ответа
@@ -84,30 +63,6 @@ function get_bytes_f {
     else
         echo "-"
     fi
-}
-
-# функция рандомного выбора протокола для записи в лог файле
-function get_protocol_f {
-    arr_size=$((${#ulr_protocol_arr[@]} - 1))
-    indx_protocol=$(shuf -i 0-$arr_size -n 1)
-    rand_protocol=${ulr_protocol_arr[indx_protocol]}
-    echo $rand_protocol
-}
-
-# функция рандомного выбора домена url для записи в лог файле
-function get_domen_f {
-    arr_size=$((${#url_domen_arr[@]} - 1))
-    indx_domen=$(shuf -i 0-$arr_size -n 1)
-    rand_dome=${url_domen_arr[indx_domen]}
-    echo $rand_dome
-}
-
-# функция рандомного выбора агента для записи в лог файле
-function get_agent_f {
-    arr_size=$((${#agents_arr[@]} - 1))
-    indx_agent=$(shuf -i 0-$arr_size -n 1)
-    rand_agent=${agents_arr[indx_agent]}
-    echo $rand_agent
 }
 
 # ********************** Main Function **********************
@@ -135,14 +90,14 @@ then
         do
             ip=$(get_ip_f) # ip address
             record_date_time=$(get_record_time_f $date $record_time_shift) # дата и время записи в лог файле
-            method=$(get_method_f) # метод запроса
-            updome=$(get_updomen_f) # домена верхнего уровня url
-            page=$(get_page_f) # страница url
-            code=$(get_code_f) # код состояния, который сервер отправляет обратно клиенту
+            method=$(get_data_from_arr_f ${methods_arr[*]}) # метод запроса
+            updome=$(get_data_from_arr_f ${ulr_domuplevel_arr[*]}) # домена верхнего уровня url
+            page=$(get_data_from_arr_f ${url_page_arr[*]}) # страница url
+            code=$(get_data_from_arr_f ${codes_arr[*]}) # код состояния, который сервер отправляет обратно клиенту
             bytes=$(get_bytes_f $code) # размер объекта, возвращаемого клиенту
-            protocol=$(get_protocol_f) # протокол передачи данных в интернете
-            domen=$(get_domen_f) # домен url
-            agent=$(get_agent_f) # клиентский браузер
+            protocol=$(get_data_from_arr_f ${ulr_protocol_arr[*]}) # протокол передачи данных в интернете
+            domen=$(get_data_from_arr_f ${url_domen_arr[*]}) # домен url
+            agent=$(get_data_from_arr_f ${agents_arr[*]}) # клиентский браузер
             
             # формирование записи в лог файле
             record="$ip - - [$record_date_time] \"$method /$updome/$page HTTP/1.1\" $code $bytes \"$protocol://$domen.$updome/$page\" \"$agent\""
@@ -168,6 +123,10 @@ echo "run.sh: Stop run.sh script"
 echo "*************************"
 
 
+# ********* Пример одной записи в Combined Log Format *********
+# 95.152.63.100 - - [18/Aug/2019:09:38:53 +0300] "POST /ru/?act=locatepicture HTTP/1.1" 200 25627 "https://suip.biz/ru/?act=locatepicture" "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36"
+
+# ********* Описание, что означает каждый из использованных кодов ответа. *********
 # 200 OK — успешный запрос. Если клиентом были запрошены какие-либо данные, то они находятся в заголовке и/или теле сообщения
 
 # 201 Created — в результате успешного выполнения запроса был создан новый ресурс. Новый ресурс эффективно создаётся до отправки этого ответа. И новый ресурс возвращается в теле сообщения, его местоположение представляет собой либо URL-адрес запроса, либо содержимое заголовка Location.
